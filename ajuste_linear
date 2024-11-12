@@ -1,0 +1,102 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Função para calcular o desvio total (D) entre os pontos e a reta
+def calcular_desvio_total(pontos, a, b):
+    # Decompondo os pontos (x, y)
+    x, y = pontos[:, 0], pontos[:, 1]
+    # Calculando os valores da reta para cada x
+    y_estimado = a + b * x
+    # Calculando o desvio (y - y_estimado)
+    desvios = np.abs(y - y_estimado)
+    # Somando os desvios
+    desvio_total = np.sum(desvios)
+    return desvio_total, y_estimado
+
+# Função para calcular a reta de melhor ajuste (método dos mínimos quadrados)
+def melhor_reta(pontos):
+    # Decompondo os pontos (x, y)
+    x = pontos[:, 0]
+    y = pontos[:, 1]
+    # Calculando os coeficientes da reta y = a + bx usando mínimos quadrados
+    b, a = np.polyfit(x, y, 1)  # Retorna b (coeficiente angular) e a (interceptação)
+    return a, b
+
+# Função para plotar os gráficos
+def plotar(pontos, reta1, reta2, reta_ajuste):
+    x = pontos[:, 0]
+    y = pontos[:, 1]
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(x, y, color='black', label='Pontos amostrados')
+    
+    # Plotando as duas retas fornecidas
+    x_range = np.linspace(min(x), max(x), 100)
+    y_reta1 = reta1[0] + reta1[1] * x_range
+    y_reta2 = reta2[0] + reta2[1] * x_range
+    plt.plot(x_range, y_reta1, label=f'Reta 1: y = {reta1[0]} + {reta1[1]}x', linestyle='--', color='blue')
+    plt.plot(x_range, y_reta2, label=f'Reta 2: y = {reta2[0]} + {reta2[1]}x', linestyle='--', color='red')
+    
+    # Plotando a reta de melhor ajuste
+    y_ajuste = reta_ajuste[0] + reta_ajuste[1] * x_range
+    plt.plot(x_range, y_ajuste, label=f'Reta de ajuste: y = {reta_ajuste[0]} + {reta_ajuste[1]}x', color='green')
+
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.legend()
+    plt.title('Ajuste Linear Simples')
+    plt.grid(True)
+    plt.show()
+
+def main():
+    # a) Entrar com uma série de pontos amostrados (4 pontos)
+    print("Entre com os 4 pontos amostrados (x, y):")
+    pontos = []
+    for i in range(4):
+        x = float(input(f"Digite o valor de x{i+1}: "))
+        y = float(input(f"Digite o valor de y{i+1}: "))
+        pontos.append([x, y])
+    pontos = np.array(pontos)
+
+    # b) Entrar com duas retas aleatórias
+    print("\nDigite os coeficientes das duas retas aleatórias:")
+    a1 = float(input("Digite o valor de a1 (reta 1): "))
+    b1 = float(input("Digite o valor de b1 (reta 1): "))
+    c1 = float(input("Digite o valor de c1 (reta 2): "))
+    d1 = float(input("Digite o valor de d1 (reta 2): "))
+
+    reta1 = [a1, b1]
+    reta2 = [c1, d1]
+
+    # c) Calcular os desvios totais (D) para as retas fornecidas
+    desvio_total1, _ = calcular_desvio_total(pontos, a1, b1)
+    desvio_total2, _ = calcular_desvio_total(pontos, c1, d1)
+    
+    print("\nDesvio total para a reta 1 (y = a1 + b1*x):", desvio_total1)
+    print("Desvio total para a reta 2 (y = c1 + d1*x):", desvio_total2)
+
+    # d) Encontrar a melhor reta (ajuste linear)
+    reta_ajuste = melhor_reta(pontos)
+    print(f"\nMelhor reta de ajuste: y = {reta_ajuste[0]:.2f} + {reta_ajuste[1]:.2f}x")
+
+    # e) Plotar a tabela preenchida
+    tabela = pd.DataFrame(pontos, columns=['x', 'y'])
+    tabela['y estimado (reta 1)'] = reta1[0] + reta1[1] * tabela['x']
+    tabela['Desvio (reta 1)'] = np.abs(tabela['y'] - tabela['y estimado (reta 1)'])
+
+    tabela['y estimado (reta 2)'] = reta2[0] + reta2[1] * tabela['x']
+    tabela['Desvio (reta 2)'] = np.abs(tabela['y'] - tabela['y estimado (reta 2)'])
+
+    tabela['y estimado (ajuste)'] = reta_ajuste[0] + reta_ajuste[1] * tabela['x']
+    tabela['Desvio (ajuste)'] = np.abs(tabela['y'] - tabela['y estimado (ajuste)'])
+
+    print("\nTabela com os desvios:")
+    print(tabela)
+
+    # e) Plotar o gráfico
+    plotar(pontos, reta1, reta2, reta_ajuste)
+
+# Chamar a função principal
+if __name__ == "__main__":
+    main()
